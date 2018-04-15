@@ -1,0 +1,6 @@
+[package]
+name = "pew"
+version = "0.1.0"
+authors = ["Akshay Nanavati <akshay.nanavati1@gmail.com>"]
+
+[dependencies]
