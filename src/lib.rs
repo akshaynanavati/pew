@@ -68,6 +68,7 @@ pub fn run_benchmark(f: &Fn(&mut State), input: u64) -> (u64, u64) {
 macro_rules! pew_main {
     ($($f: ident -> $gen:expr),+) => {
         fn main() {
+            println!("Name,Time (ns)");
             $({
                 let bm_name = stringify!($f);
                 let (lb, ub, mul) = $gen;
