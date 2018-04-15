@@ -1,3 +1,5 @@
+#![feature(asm)]
+
 use std::time::{Duration, Instant};
 
 const DURATION_RUN_UNTIL: u64 = 1_000_000_000;
@@ -7,6 +9,19 @@ pub struct State {
     time_elapsed: Duration,
     is_paused: bool,
     input: u64,
+}
+
+pub fn do_not_optimize<T>(val: T) {
+    let mut _v = val;
+    unsafe {
+        asm!("" : "+r" (_v) : : : "volatile");
+    }
+}
+
+pub fn clobber() {
+    unsafe {
+        asm!("" : : : "memory" : "volatile");
+    }
 }
 
 impl State {
