@@ -1,20 +1,21 @@
 #![feature(asm)]
 
+use std::mem;
 use std::time::{Duration, Instant};
 
 const DURATION_RUN_UNTIL: u64 = 1_000_000_000;
 
-pub struct State {
+pub struct State<T> {
     instant: Instant,
     time_elapsed: Duration,
     is_paused: bool,
-    input: u64,
+    input: T,
 }
 
 pub fn do_not_optimize<T>(val: T) {
     let mut _v = val;
     unsafe {
-        asm!("" : "+r" (_v) : : : "volatile");
+        asm!("" : "+r" (&_v) : : : "volatile");
     }
 }
 
@@ -24,8 +25,8 @@ pub fn clobber() {
     }
 }
 
-impl State {
-    pub fn new(input: u64) -> State {
+impl<T> State<T> {
+    pub fn new(input: T) -> State<T> {
         return State {
             instant: Instant::now(),
             time_elapsed: Duration::new(0, 0),
@@ -50,10 +51,6 @@ impl State {
         self.instant = Instant::now();
     }
 
-    pub fn get_input(&self) -> u64 {
-        return self.input;
-    }
-
     pub fn finish(&self) -> Duration {
         let elapsed = self.instant.elapsed();
         if self.is_paused {
@@ -63,11 +60,20 @@ impl State {
     }
 }
 
+impl<T: Default> State<T> {
+    pub fn get_input(&mut self) -> T {
+        self.pause();
+        let input = mem::replace(&mut self.input, T::default());
+        self.resume();
+        return input;
+    }
+}
+
 fn duration_as_nano(duration: &Duration) -> u64 {
     return duration.as_secs() * 1_000_000_000 + duration.subsec_nanos() as u64;
 }
 
-pub fn run_benchmark(f: &Fn(&mut State), input: u64) -> (u64, u64) {
+pub fn run_benchmark_range(f: &Fn(&mut State<u64>), input: u64) -> (u64, u64) {
     let mut runs = 0;
     let mut total_duration = 0;
     while total_duration < DURATION_RUN_UNTIL {
@@ -79,22 +85,53 @@ pub fn run_benchmark(f: &Fn(&mut State), input: u64) -> (u64, u64) {
     return (total_duration, runs);
 }
 
+pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64) {
+    let mut runs = 0;
+    let mut total_duration = 0;
+    while total_duration < DURATION_RUN_UNTIL {
+        let input_clone = input.clone();
+        let mut state = State::new(input_clone);
+        f(&mut state);
+        total_duration += duration_as_nano(&state.finish());
+        runs += 1;
+    }
+    return (total_duration, runs);
+}
+
 #[macro_export]
 macro_rules! pew_main {
-    ($($f: ident -> $gen:expr),+) => {
+    (@inner $f: ident -> RANGE$e: expr) => {
+        {
+            let bm_name = stringify!($f);
+            let (lb, ub, mul) = $e;
+            let mut i = lb;
+            while i <= ub {
+                let run_name = format!("{}/{}", bm_name, i);
+                let (total_duration, runs) = pew::run_benchmark_range(&$f, i);
+                println!("{},{}", run_name, total_duration / runs);
+                i *= mul;
+            }
+        }
+    };
+    (@inner $f: ident -> GENRANGE$e: expr) => {
+        {
+            let bm_name = stringify!($f);
+            let (gen, lb, ub, mul) = $e;
+            let mut i = lb;
+            while i <= ub {
+                let run_name = format!("{}/{}", bm_name, i);
+                let (total_duration, runs) = pew::run_benchmark_gen(&$f, gen(i));
+                println!("{},{}", run_name, total_duration / runs);
+                i *= mul;
+            }
+        }
+    };
+    ($($f: ident -> $id: ident$e: expr),+) => {
         fn main() {
             println!("Name,Time (ns)");
-            $({
-                let bm_name = stringify!($f);
-                let (lb, ub, mul) = $gen;
-                let mut i = lb;
-                while i <= ub {
-                    let run_name = format!("{}/{}", bm_name, i);
-                    let (total_duration, runs) = pew::run_benchmark(&$f, i);
-                    println!("{},{}", run_name, total_duration / runs);
-                    i *= mul;
-                }
-            })+
+            $(
+                pew_main!(@inner $f -> $id$e);
+            )+;
         }
     };
 }
