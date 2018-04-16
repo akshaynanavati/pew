@@ -101,3 +101,6 @@ Size,bm_vector_range,bm_vector_gen
 
 TODO: Add more output types (e.g. pretty printed, JSON, etc).
 
+## License
+
+This code is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
