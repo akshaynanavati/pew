@@ -1,3 +1,24 @@
+/// Transposes the output of a benchmark.
+///
+/// This assumes that you are running multiple benchmarks (`RANGE or
+/// `GENRANGE`) with the same range. It will then transform the default
+/// output:
+///
+/// ```
+/// Name,Time (ns)
+/// bm_vector_range/1024,102541
+/// bm_vector_range/4096,423289
+/// bm_vector_gen/1024,102316
+/// bm_vector_gen/4096,416523
+/// ```
+///
+/// into:
+///
+/// ```
+/// Size,bm_vector_range,bm_vector_gen
+/// 1024,105974,106845
+/// 4096,418835,409143
+/// ```
 use std::collections::BTreeMap;
 use std::io::{self, BufRead};
 use std::vec::Vec;

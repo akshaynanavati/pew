@@ -5,10 +5,10 @@ use std::time::{Duration, Instant};
 
 const DURATION_RUN_UNTIL: u64 = 1_000_000_000;
 
-/// This is the benchmark state. At a high level, it allows one to pause the
-/// timer and also access an argument for this run of the benchmark.
+/// This is the benchmark state. At a high level, it allows one to pause the timer and also access
+/// an argument for this run of the benchmark.
 ///
-/// `T` will either be `u64` in the case of `RANGE`, or a user defined `T: Clone`
+/// `T` will either be `u64` in the case of `RANGE`, or a user defined `T: Clone + Default`
 /// in the case of `GENRANGE`.
 pub struct State<T> {
     instant: Instant,
@@ -17,21 +17,16 @@ pub struct State<T> {
     input: T,
 }
 
-/// This method forces the compiler to not optimize the return statement of
-/// a benchmark.
+/// This method forces the compiler to not optimize the return statement of a benchmark.
 ///
 /// # Examples
 ///
-/// ```
-/// use pew::{self, State};
+/// ``` use pew::{self, State};
 ///
-/// fn bm_simple(state: &mut State<u64>) {
-///     pew::do_not_optimize(5 + 10);
-/// }
-/// ```
+/// fn bm_simple(state: &mut State<u64>) { pew::do_not_optimize(5 + 10); } ```
 ///
-/// TODO: Conditionally compile this only on nightly so the rest of the
-/// benchmark crate can be used in stable.
+/// TODO: Conditionally compile this only on nightly so the rest of the benchmark crate can be used
+/// in stable.
 pub fn do_not_optimize<T>(val: T) {
     let mut _v = val;
     unsafe {
@@ -49,7 +44,7 @@ pub fn do_not_optimize<T>(val: T) {
 /// use std::vec::Vec;
 ///
 /// fn bm_simple(state: &mut State<u64>) {
-///     let vec = Vec::new();
+///     let mut vec = Vec::new();
 ///     vec.push(1);
 ///     vec.push(2);
 ///     pew::clobber();
@@ -85,7 +80,7 @@ impl<T> State<T> {
     ///
     /// fn bm_simple(state: &mut State<u64>) {
     ///     state.pause();
-    ///     let vec = Vec::new();
+    ///     let mut vec = Vec::new();
     ///     vec.push(1);
     ///     state.resume();
     ///     pew::do_not_optimize(vec.get(1));
@@ -114,7 +109,7 @@ impl<T> State<T> {
     ///
     /// fn bm_simple(state: &mut State<u64>) {
     ///     state.pause();
-    ///     let vec = Vec::new();
+    ///     let mut vec = Vec::new();
     ///     vec.push(1);
     ///     state.resume();
     ///     pew::do_not_optimize(vec.get(1));
@@ -143,7 +138,7 @@ impl<T> State<T> {
 
 impl<T: Default> State<T> {
     /// Returns the input. Either `u64` (if using `RANGE`) or a user specified
-    /// `T: Clone` if using `GENRANGE`.
+    /// `T: Clone + Default` if using `GENRANGE`.
     ///
     /// # Examples
     ///
@@ -156,10 +151,10 @@ impl<T: Default> State<T> {
     /// fn bm_simple(state: &mut State<u64>) {
     ///     let n = state.get_input();
     ///     state.pause();
-    ///     let vec = Vec::with_capacity(n);
+    ///     let mut vec = Vec::with_capacity(n as usize);
     ///     state.resume();
     ///     for i in 0..n {
-    ///     vec.push(i);
+    ///         vec.push(i as u64);
     ///     }
     /// }
     /// ```
@@ -172,8 +167,9 @@ impl<T: Default> State<T> {
     ///
     /// fn bm_simple(state: &mut State<Vec<u64>>) {
     ///     let mut vec = state.get_input();
+    ///     let n = vec.len();
     ///     for i in 0..n {
-    ///     vec.push(i);
+    ///         vec.push(i as u64);
     ///     }
     /// }
     /// ```
@@ -226,11 +222,10 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 ///
 /// Accepts a comma separated list of either of the following:
 ///
-/// ```
-/// <func_ident> -> RANGE(<lower_bound_expr>, <upper_bound_expr>, <mul_expr>)
-/// <func_ident> -> GENRANGE(<generator_func_ident>, <lower_bound_expr>, <upper_bound_expr>, <mul_expr>)
-/// ```
+/// - `<func_ident> -> RANGE(<lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
+/// - `<func_ident> -> GENRANGE(<generator_func_ident>, <lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
 
+///
 /// where:
 ///
 /// - `func_ident` is the name of a function in scope. If using `RANGE`,
@@ -243,7 +238,7 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 ///   from `i = lower_bound; i <= lower_bound; i *= mul`. If using `GENRANGE`,
 ///   the generator function will receives the aforementioned values.
 /// - `generator_func_ident` is the name of a function in scope. The function
-///   type should be `Fn(n: usize) -> T` for some `T: Clone`. This function will
+///   type should be `Fn(n: usize) -> T` for some `T: Clone + Default`. This function will
 ///   be called once for every `i` in the range (see above). It will be generated
 ///   once per benchmark and cloned every time if the benchmark is run multiple
 ///   times. Note that cloning is not counted in the benchmark time.
@@ -253,8 +248,8 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 /// ```
 /// use std::vec::Vec;
 ///
-/// #[macro_use]
-/// extern crate pew;
+/// # #[macro_use]
+/// # extern crate pew;
 ///
 /// fn get_vec(n: usize) -> Vec<u64> {
 ///     let mut vec = Vec::new();
@@ -282,10 +277,12 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 ///     }
 /// }
 ///
+/// # fn main() {
 /// pew_main!(
 ///     bm_vector_range -> RANGE(1<<10, 1 << 20, 4),
 ///     bm_vector_gen -> GENRANGE(get_vec, 1<<10, 1<<20, 4)
 /// );
+/// # }
 /// ```
 #[macro_export]
 macro_rules! pew_main {

@@ -43,7 +43,7 @@ where:
   from `i = lower_bound; i <= lower_bound; i *= mul`. If using `GENRANGE`,
   the generator function will receives the aforementioned values.
 - `generator_func_ident` is the name of a function in scope. The function
-  type should be `Fn(n: usize) -> T` for some `T: Clone`. This function will
+  type should be `Fn(n: usize) -> T` for some `T: Clone + Default`. This function will
   be called once for every `i` in the range (see above). It will be generated
   once per benchmark and cloned every time if the benchmark is run multiple
   times. Note that cloning is not counted in the benchmark time.
