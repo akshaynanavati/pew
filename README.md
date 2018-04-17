@@ -2,9 +2,8 @@
 
 Pew is a benchmarking library written in Rust based of
 [Google's C++ Benchmarking library](https://github.com/google/benchmark). It
-is currently in very alpha stages (I'd consider it an MVP). It was built with
-to be able to do the following (which you cannot do in the rust benchmarking
-library):
+is currently in very alpha stages (I'd consider it an MVP). It was built to be
+able to do the following (which you cannot do in the rust benchmarking library):
 
 1) Pause and unpause the benchmark timer
 2) Run multiple benchmarks by specifying a range of arguments
@@ -15,11 +14,11 @@ second and then averages all those runs.
 
 More comprehensive docs can be found [here](https://docs.rs/pew/0.1.0/pew/).
 
-[TODO](https://github.com/akshaynanavati/pew/issues/1): How do we make this 
+[TODO](https://github.com/akshaynanavati/pew/issues/1): How do we make this
 more statistically significant? Run the benchmark till the variance settles?
 
 [TODO](https://github.com/akshaynanavati/pew/issues/3): Make the 1 second upper
-boudn for running benchmarks configurable.
+bound for running benchmarks configurable.
 
 ## Installation
 
@@ -112,7 +111,7 @@ This code is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE
 ## Contributing
 
 This library is in very early stages and I'd love any contributions I can get. This is my
-first time writing a becnhmarking library (and a library in Rust) and would love input from 
+first time writing a becnhmarking library (and a library in Rust) and would love input from
 those who are more experienced.
 
 A good starting point would be the issues (which are also linked here as TODOs).
