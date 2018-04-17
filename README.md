@@ -106,3 +106,9 @@ TODO: Add more output types (e.g. pretty printed, JSON, etc).
 ## License
 
 This code is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+## Contributing
+
+This library is in very early stages and I'd love any contributions I can get. This is my
+first time writing a becnhmarking library (and a library in Rust) and would love input from 
+those who are more experienced.
