@@ -15,8 +15,11 @@ second and then averages all those runs.
 
 More comprehensive docs can be found [here](https://docs.rs/pew/0.1.0/pew/).
 
-TODO: How do we make this more statistically significant? Run the benchmark
-till the variance settles?
+[TODO](https://github.com/akshaynanavati/pew/issues/1): How do we make this 
+more statistically significant? Run the benchmark till the variance settles?
+
+[TODO](https://github.com/akshaynanavati/pew/issues/3): Make the 1 second upper
+boudn for running benchmarks configurable.
 
 ## Installation
 
@@ -55,8 +58,6 @@ where:
 There are examples in the `examples/` directory of how to use this. Basically,
 you just want to define your benchmark functions and call `pew_main!` as
 described above.
-
-TODO: Add more examples
 
 ## Output
 
@@ -101,7 +102,8 @@ Size,bm_vector_range,bm_vector_gen
 1048576,108144239,107596626
 ```
 
-TODO: Add more output types (e.g. pretty printed, JSON, etc).
+[TODO](https://github.com/akshaynanavati/pew/issues/1): Add more output types
+(e.g. pretty printed, JSON, etc).
 
 ## License
 
@@ -112,3 +114,5 @@ This code is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE
 This library is in very early stages and I'd love any contributions I can get. This is my
 first time writing a becnhmarking library (and a library in Rust) and would love input from 
 those who are more experienced.
+
+A good starting point would be the issues (which are also linked here as TODOs).
