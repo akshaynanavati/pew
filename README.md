@@ -22,8 +22,25 @@ bound for running benchmarks configurable.
 
 ## Installation
 
-This is available on [crates.io](crates.io). You can link it as a library,
-or `cargo install` to also get the transpose script (see [output](#output)).
+This is available on [crates.io](https://crates.io/crates/pew). You can link it
+as a library, or `cargo install` to also get the transpose script (see [output](#output)).
+
+First, add this to your `Cargo.toml`:
+
+```
+[dependencies]
+pew = "0.1"
+```
+
+Next, add this to your crate root:
+
+```
+#[macro_use]
+extern crate pew;
+```
+
+I usually create benchmarks in the `bin/` directory and run them with
+`cargo run --bin <benchmark-name> --release`.
 
 ## Usage
 
