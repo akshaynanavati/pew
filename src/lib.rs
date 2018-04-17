@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #![feature(asm)]
 
 use std::mem;
@@ -237,8 +238,8 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 ///
 /// Accepts a comma separated list of either of the following:
 ///
-/// - `<func_ident> -> RANGE(<lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
-/// - `<func_ident> -> GENRANGE(<generator_func_ident>, <lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
+/// - `(<func_ident>),+ -> RANGE(<lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
+/// - `(<func_ident>),+ -> GENRANGE(<generator_func_ident>, <lower_bound_expr>, <upper_bound_expr>, <mul_expr>)`
 
 ///
 /// where:
@@ -257,6 +258,11 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 ///   be called once for every `i` in the range (see above). It will be generated
 ///   once per benchmark and cloned every time if the benchmark is run multiple
 ///   times. Note that cloning is not counted in the benchmark time.
+///
+/// You may pass a list of `func_ident`s to the same `GENRANGE` (or `RANGE`)
+/// benchmark. The reason for this is if you are generating random data to
+/// benchmark on, you can now ascertain that two benchmarks will get the same
+/// random data on each invocation for each input in the range.
 ///
 /// # Examples
 ///
@@ -301,37 +307,42 @@ pub fn run_benchmark_gen<T: Clone>(f: &Fn(&mut State<T>), input: T) -> (u64, u64
 /// ```
 #[macro_export]
 macro_rules! pew_main {
-    (@inner $f: ident -> RANGE$e: expr) => {
+    (@inner $($f: ident),+ -> RANGE$e: expr) => {
         {
-            let bm_name = stringify!($f);
             let (lb, ub, mul) = $e;
             let mut i = lb;
             while i <= ub {
-                let run_name = format!("{}/{}", bm_name, i);
-                let (total_duration, runs) = pew::run_benchmark_range(&$f, i);
-                println!("{},{}", run_name, total_duration / runs);
+                $({
+                    let bm_name = stringify!($f);
+                    let run_name = format!("{}/{}", bm_name, i);
+                    let (total_duration, runs) = pew::run_benchmark_range(&$f, i);
+                    println!("{},{}", run_name, total_duration / runs);
+                })+;
                 i *= mul;
             }
         }
     };
-    (@inner $f: ident -> GENRANGE$e: expr) => {
+    (@inner $($f: ident),+ -> GENRANGE$e: expr) => {
         {
-            let bm_name = stringify!($f);
             let (gen, lb, ub, mul) = $e;
             let mut i = lb;
             while i <= ub {
-                let run_name = format!("{}/{}", bm_name, i);
-                let (total_duration, runs) = pew::run_benchmark_gen(&$f, gen(i));
-                println!("{},{}", run_name, total_duration / runs);
+                let input = gen(i);
+                $({
+                    let bm_name = stringify!($f);
+                    let run_name = format!("{}/{}", bm_name, i);
+                    let (total_duration, runs) = pew::run_benchmark_gen(&$f, input.clone());
+                    println!("{},{}", run_name, total_duration / runs);
+                })+;
                 i *= mul;
             }
         }
     };
-    ($($f: ident -> $id: ident$e: expr),+) => {
+    ($($($f: ident),+ -> $id: ident$e: expr),+) => {
         fn main() {
             println!("Name,Time (ns)");
             $(
-                pew_main!(@inner $f -> $id$e);
+                pew_main!(@inner $($f),+ -> $id$e);
             )+;
         }
     };
