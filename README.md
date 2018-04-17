@@ -13,6 +13,8 @@ library):
 Currently, it runs the benchmark enough times such that it runs for at least 1
 second and then averages all those runs.
 
+More comprehensive docs can be found [here](https://docs.rs/pew/0.1.0/pew/).
+
 TODO: How do we make this more statistically significant? Run the benchmark
 till the variance settles?
 
