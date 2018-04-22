@@ -18,17 +18,11 @@
 extern crate pew;
 extern crate rand;
 
+use pew::Benchmark;
 use rand::{thread_rng, Rng};
 use std::vec::Vec;
 
-/// Builds a vector.
-///
-/// This is not part of the benchmark, but just creates it so
-/// we can benchmark the pop performance.
-///
-/// It matches the signature for a `GENRANGE` where each `n` will be
-/// one in the range.
-fn get_vec(n: usize) -> Vec<u64> {
+fn get_vec(n: u64) -> Vec<u64> {
     let mut rng = thread_rng();
     let mut vec = Vec::new();
     for _ in 0..n {
@@ -37,7 +31,6 @@ fn get_vec(n: usize) -> Vec<u64> {
     return vec;
 }
 
-/// Iterate benchmark
 fn bm_vector_iterate(state: &mut pew::State<Vec<u64>>) {
     let vec = state.get_input();
     let n = vec.len() as u64;
@@ -46,7 +39,6 @@ fn bm_vector_iterate(state: &mut pew::State<Vec<u64>>) {
     }
 }
 
-/// Delete benchmark
 fn bm_vector_delete(state: &mut pew::State<Vec<u64>>) {
     let mut vec = state.get_input();
     let n = vec.len() as u64;
@@ -55,8 +47,11 @@ fn bm_vector_delete(state: &mut pew::State<Vec<u64>>) {
     }
 }
 
-/// We can pass multiple benchmarks to the same GENRANGE which will mean
-/// the same random vector gets passed into both benchmarks.
-pew_main!(
-    bm_vector_iterate, bm_vector_delete -> GENRANGE(get_vec, 1<<10, 1<<20, 4)
-);
+fn main() {
+    Benchmark::new("example2")
+        .with_range(1 << 10, 1 << 20, 4)
+        .with_generator(get_vec)
+        .with_bench(pew_bench!(bm_vector_iterate))
+        .with_bench(pew_bench!(bm_vector_delete))
+        .run();
+}

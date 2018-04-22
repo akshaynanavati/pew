@@ -44,36 +44,11 @@ I usually create benchmarks in the `bin/` directory and run them with
 
 ## Usage
 
-The main exported macro is `pew_main!`. It accepts a comma separated list of
-one of the following
-
-```
-<func_ident> -> RANGE(<lower_bound_expr>, <upper_bound_expr>, <mul_expr>)
-<func_ident> -> GENRANGE(<generator_func_ident>, <lower_bound_expr>, <upper_bound_expr>, <mul_expr>)
-```
-
-where:
-
-- `func_ident` is the name of a function in scope. If using `RANGE`,
-  `func_ident` should have type `Fn(&mut pew::State<u64>)`. If using
-  `GENRANGE`, `func_ident` should have type `Fn(&mut pew::State<T>)`
-  where `T` depends on the generator type (see below).
-- `lower_bound_expr`, `upper_bound_expr`, and `mul_expr` are all numerical
-  types representing the lower, upper, and multiplcation value for the
-  benchmark. If using `RANGE`, `state.get_input()` will return all values
-  from `i = lower_bound; i <= lower_bound; i *= mul`. If using `GENRANGE`,
-  the generator function will receives the aforementioned values.
-- `generator_func_ident` is the name of a function in scope. The function
-  type should be `Fn(n: usize) -> T` for some `T: Clone + Default`. This function will
-  be called once for every `i` in the range (see above). It will be generated
-  once per benchmark and cloned every time if the benchmark is run multiple
-  times. Note that cloning is not counted in the benchmark time.
+View the docs [here](https://docs.rs/pew/0.1.0/pew/).
 
 ## Example
 
-There are examples in the `examples/` directory of how to use this. Basically,
-you just want to define your benchmark functions and call `pew_main!` as
-described above.
+There are examples in the `examples/` directory of how to use this.
 
 ## Output
 
