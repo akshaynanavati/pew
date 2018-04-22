@@ -16,16 +16,42 @@
 
 #![feature(asm)]
 
+extern crate clap;
+#[macro_use]
+extern crate lazy_static;
+
+use clap::{App, Arg, ArgMatches};
 use std::mem;
 use std::sync::{Once, ONCE_INIT};
 use std::time::{Duration, Instant};
 
-static START: Once = ONCE_INIT;
-
 const DURATION_RUN_UNTIL: u64 = 1_000_000_000;
+static HEADER: Once = ONCE_INIT;
+lazy_static! {
+    static ref CLI_CONFIG: ArgMatches<'static> = App::new("pew-benchmark")
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about(env!("CARGO_PKG_DESCRIPTION"))
+        .arg(
+            Arg::with_name("filter")
+                .short("f")
+                .long("filter")
+                .value_name("FILTER")
+                .help("Only run benchmarks that contain this string")
+                .takes_value(true),
+        )
+        .get_matches();
+}
+
+fn should_run_bm(bm_name: &String) -> bool {
+    match CLI_CONFIG.value_of("filter") {
+        None => true,
+        Some(s) => bm_name.contains(s),
+    }
+}
 
 fn duration_as_nano(duration: &Duration) -> u64 {
-    return duration.as_secs() * 1_000_000_000 + duration.subsec_nanos() as u64;
+    duration.as_secs() * 1_000_000_000 + duration.subsec_nanos() as u64
 }
 
 fn range_generator<T>(i: T) -> T {
@@ -220,6 +246,9 @@ impl<T: Default> State<T> {
 /// gen_bench/f/1048576,109010591
 /// ```
 ///
+/// When running the benchmark, you can pass the `--filter` flag. This will only run benchmarks
+/// who's name contains the substring passed in to `--filter`.
+///
 /// See `examples/` for more examples.
 pub struct Benchmark<T: 'static + Clone> {
     name: &'static str,
@@ -312,7 +341,7 @@ impl<T: Clone> Benchmark<T> {
             panic!("Cannot call run on an empty benchmark");
         }
 
-        START.call_once(|| {
+        HEADER.call_once(|| {
             println!("Name,Time (ns)");
         });
 
@@ -322,15 +351,18 @@ impl<T: Clone> Benchmark<T> {
         while i <= ub {
             let input = gen(i);
             for (name, f) in &self.fns {
-                let mut runs = 0;
-                let mut total_duration = 0;
-                while total_duration < DURATION_RUN_UNTIL {
-                    let mut state = State::new(input.clone());
-                    f(&mut state);
-                    total_duration += duration_as_nano(&state.finish());
-                    runs += 1;
+                let bm_name = format!("{}/{}/{}", self.name, name, i);
+                if should_run_bm(&bm_name) {
+                    let mut runs = 0;
+                    let mut total_duration = 0;
+                    while total_duration < DURATION_RUN_UNTIL {
+                        let mut state = State::new(input.clone());
+                        f(&mut state);
+                        total_duration += duration_as_nano(&state.finish());
+                        runs += 1;
+                    }
+                    println!("{},{}", bm_name, total_duration / runs);
                 }
-                println!("{}/{}/{},{}", self.name, name, i, total_duration / runs);
                 i *= mul;
             }
         }

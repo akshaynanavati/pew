@@ -48,7 +48,21 @@ View the docs [here](https://docs.rs/pew/0.1.0/pew/).
 
 ## Example
 
-There are examples in the `examples/` directory of how to use this.
+This can be used as follows:
+
+```
+fn main() {
+    Benchmark::new("range_bench")
+        .with_range(1 << 10, 1 << 20, 4)
+        .with_generator(generator)
+        .with_bench(pew_bench!(bm_vector1))
+        .with_bench(pew_bench!(bm_vector2))
+        .with_bench(pew_bench!(bm_vector3))
+        .run();
+}
+```
+
+There are more complete examples in the `examples/` directory of how to use this.
 
 ## Output
 
@@ -69,6 +83,26 @@ bm_vector_gen/16384,1657982
 bm_vector_gen/65536,6566634
 bm_vector_gen/262144,26780184
 bm_vector_gen/1048576,105760350
+```
+
+You can also pass a `--filter` flag to the benchmark which would only run
+benchmarks who's name contains the filter string. For example, running
+`cargo cargo run --example example1 -- --filter gen` will output:
+
+```
+bm_vector_gen/1024,102316
+bm_vector_gen/4096,416523
+bm_vector_gen/16384,1657982
+bm_vector_gen/65536,6566634
+bm_vector_gen/262144,26780184
+bm_vector_gen/1048576,105760350
+```
+
+while running `cargo cargo run --example example1 -- --filter 1024` will output:
+
+```
+bm_vector_range/1024,102541
+bm_vector_gen/1024,102316
 ```
 
 Oftentimes I run multiple benchmarks on the same range and plot the results.
