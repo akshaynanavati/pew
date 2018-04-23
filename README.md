@@ -17,9 +17,6 @@ More comprehensive docs can be found [here](https://docs.rs/pew/0.1.0/pew/).
 [TODO](https://github.com/akshaynanavati/pew/issues/1): How do we make this
 more statistically significant? Run the benchmark till the variance settles?
 
-[TODO](https://github.com/akshaynanavati/pew/issues/3): Make the 1 second upper
-bound for running benchmarks configurable.
-
 ## Installation
 
 This is available on [crates.io](https://crates.io/crates/pew). You can link it
@@ -129,6 +126,29 @@ Size,bm_vector_range,bm_vector_gen
 
 [TODO](https://github.com/akshaynanavati/pew/issues/1): Add more output types
 (e.g. pretty printed, JSON, etc).
+
+## Cli
+
+The Cli offers convenience flags and options while running benchmarks:
+
+```
+pew-benchmark 0.2.0
+Akshay Nanavati <akshay.nanavati1@gmail.com>
+A benchmarking library for Rust based on google/benchmark
+
+USAGE:
+    example1 [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -f, --filter <FILTER>          Only run benchmarks that contain this string
+    -r, --run_until <RUN_UNTIL>    Run benchmarks till this time (in ns) and then output average [default: 1000000000]
+```
+
+These can be passed to the main binary that is running your benchmark.
 
 ## License
 

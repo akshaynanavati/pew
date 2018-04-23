@@ -358,10 +358,6 @@ impl<T: Clone> Benchmark<T> {
             panic!("Cannot call run on an empty benchmark");
         }
 
-        HEADER.call_once(|| {
-            println!("Name,Time (ns)");
-        });
-
         let (lb, ub, mul) = self.range;
         let mut i = lb;
         let gen = &self.generator;
@@ -378,6 +374,11 @@ impl<T: Clone> Benchmark<T> {
                         total_duration += duration_as_nano(&state.finish());
                         runs += 1;
                     }
+
+                    HEADER.call_once(|| {
+                        println!("Name,Time (ns)");
+                    });
+
                     println!("{},{}", bm_name, total_duration / runs);
                 }
                 i *= mul;
