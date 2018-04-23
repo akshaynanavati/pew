@@ -381,8 +381,8 @@ impl<T: Clone> Benchmark<T> {
 
                     println!("{},{}", bm_name, total_duration / runs);
                 }
-                i *= mul;
             }
+            i *= mul;
         }
     }
 }
