@@ -25,7 +25,7 @@ use std::mem;
 use std::sync::{Once, ONCE_INIT};
 use std::time::{Duration, Instant};
 
-const DURATION_RUN_UNTIL: u64 = 1_000_000_000;
+const DEFAULT_DURATION_RUN_UNTIL: &str = "1000000000";
 static HEADER: Once = ONCE_INIT;
 lazy_static! {
     static ref CLI_CONFIG: ArgMatches<'static> = App::new("pew-benchmark")
@@ -40,7 +40,24 @@ lazy_static! {
                 .help("Only run benchmarks that contain this string")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("run_until")
+                .short("r")
+                .long("run_until")
+                .value_name("RUN_UNTIL")
+                .help("Run benchmarks till this time (in ns) and then output average")
+                .takes_value(true)
+                .default_value(DEFAULT_DURATION_RUN_UNTIL),
+        )
         .get_matches();
+}
+
+fn get_duration_run_until() -> u64 {
+    CLI_CONFIG
+        .value_of("run_until")
+        .unwrap()
+        .parse::<u64>()
+        .unwrap()
 }
 
 fn should_run_bm(bm_name: &String) -> bool {
@@ -355,7 +372,7 @@ impl<T: Clone> Benchmark<T> {
                 if should_run_bm(&bm_name) {
                     let mut runs = 0;
                     let mut total_duration = 0;
-                    while total_duration < DURATION_RUN_UNTIL {
+                    while total_duration < get_duration_run_until() {
                         let mut state = State::new(input.clone());
                         f(&mut state);
                         total_duration += duration_as_nano(&state.finish());
