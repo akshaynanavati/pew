@@ -226,7 +226,7 @@ impl<T: Default> State<T> {
 /// }
 ///
 /// fn main() {
-///     Benchmark::new("range_bench")
+///     Benchmark::with_name("range_bench")
 ///         .with_range(1 << 5, 1 << 5, 2)
 ///         .with_generator(get_vec)
 ///         .with_bench(pew_bench!(bm_vector_gen))
@@ -259,7 +259,7 @@ pub struct Benchmark<T: 'static + Clone> {
 
 impl Benchmark<u64> {
     /// Generates a new benchmark with name
-    pub fn new(name: &'static str) -> Self {
+    pub fn with_name(name: &'static str) -> Self {
         Benchmark {
             name,
             fns: Vec::new(),

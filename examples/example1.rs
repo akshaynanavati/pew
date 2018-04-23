@@ -47,12 +47,12 @@ fn bm_vector_gen(state: &mut pew::State<Vec<u64>>) {
 }
 
 fn main() {
-    Benchmark::new("range_bench")
+    Benchmark::with_name("range_bench")
         .with_range(1 << 10, 1 << 20, 4)
         .with_bench(pew_bench!(bm_vector_range))
         .run();
 
-    Benchmark::new("gen_bench")
+    Benchmark::with_name("gen_bench")
         .with_range(1 << 10, 1 << 20, 4)
         .with_generator(get_vec)
         .with_bench(pew_bench!(bm_vector_gen))

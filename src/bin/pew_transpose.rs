@@ -39,7 +39,7 @@ use std::collections::BTreeMap;
 use std::io::{self, BufRead};
 use std::vec::Vec;
 
-fn parse_line(line: &str) -> Option<(&str, &str, &str)> {
+fn parse_line(line: &str) -> Option<(String, &str, &str)> {
     let split: Vec<&str> = line.split(',').collect();
     if split.len() != 2 {
         return None;
@@ -48,12 +48,13 @@ fn parse_line(line: &str) -> Option<(&str, &str, &str)> {
     let time = split[1];
 
     let split: Vec<&str> = name.split('/').collect();
-    if split.len() != 2 {
+    if split.len() != 3 {
         return None;
     }
-    let name = split[0];
-    let size = split[1];
-    return Some((name, size, time));
+    let global_name = split[0];
+    let bench_name = split[1];
+    let size = split[2];
+    return Some((format!("{}/{}", global_name, bench_name), size, time));
 }
 
 fn main() {
@@ -63,9 +64,8 @@ fn main() {
     for line in stdin.lock().lines() {
         let line = line.unwrap();
         if let Some((name, size, time)) = parse_line(&line) {
-            let name_str = name.to_string();
-            if !names.contains(&name_str) {
-                names.push(name_str);
+            if !names.contains(&name) {
+                names.push(name);
             }
 
             let size = size.to_string().parse::<usize>().unwrap();

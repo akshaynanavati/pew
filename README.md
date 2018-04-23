@@ -52,7 +52,7 @@ This can be used as follows:
 
 ```
 fn main() {
-    Benchmark::new("range_bench")
+    Benchmark::with_name("range_bench")
         .with_range(1 << 10, 1 << 20, 4)
         .with_generator(generator)
         .with_bench(pew_bench!(bm_vector1))
@@ -71,18 +71,18 @@ The output is a comma separated list of benchmark results (this is what
 
 ```
 Name,Time (ns)
-bm_vector_range/1024,102541
-bm_vector_range/4096,423289
-bm_vector_range/16384,1627492
-bm_vector_range/65536,6692188
-bm_vector_range/262144,26717609
-bm_vector_range/1048576,106552932
-bm_vector_gen/1024,102316
-bm_vector_gen/4096,416523
-bm_vector_gen/16384,1657982
-bm_vector_gen/65536,6566634
-bm_vector_gen/262144,26780184
-bm_vector_gen/1048576,105760350
+range_bench/bm_vector_range/1024,104715
+range_bench/bm_vector_range/4096,554838
+range_bench/bm_vector_range/16384,2068971
+range_bench/bm_vector_range/65536,7739376
+range_bench/bm_vector_range/262144,31389948
+range_bench/bm_vector_range/1048576,114633815
+gen_bench/bm_vector_gen/1024,123643
+gen_bench/bm_vector_gen/4096,545581
+gen_bench/bm_vector_gen/16384,2590869
+gen_bench/bm_vector_gen/65536,7799209
+gen_bench/bm_vector_gen/262144,29498657
+gen_bench/bm_vector_gen/1048576,113458415
 ```
 
 You can also pass a `--filter` flag to the benchmark which would only run
@@ -90,19 +90,19 @@ benchmarks who's name contains the filter string. For example, running
 `cargo cargo run --example example1 -- --filter gen` will output:
 
 ```
-bm_vector_gen/1024,102316
-bm_vector_gen/4096,416523
-bm_vector_gen/16384,1657982
-bm_vector_gen/65536,6566634
-bm_vector_gen/262144,26780184
-bm_vector_gen/1048576,105760350
+gen_bench/bm_vector_gen/1024,123643
+gen_bench/bm_vector_gen/4096,545581
+gen_bench/bm_vector_gen/16384,2590869
+gen_bench/bm_vector_gen/65536,7799209
+gen_bench/bm_vector_gen/262144,29498657
+gen_bench/bm_vector_gen/1048576,113458415
 ```
 
 while running `cargo cargo run --example example1 -- --filter 1024` will output:
 
 ```
-bm_vector_range/1024,102541
-bm_vector_gen/1024,102316
+range_bench/bm_vector_range/1024,104715
+gen_bench/bm_vector_gen/1024,123643
 ```
 
 Oftentimes I run multiple benchmarks on the same range and plot the results.

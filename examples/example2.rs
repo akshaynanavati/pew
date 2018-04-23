@@ -48,7 +48,7 @@ fn bm_vector_delete(state: &mut pew::State<Vec<u64>>) {
 }
 
 fn main() {
-    Benchmark::new("example2")
+    Benchmark::with_name("example2")
         .with_range(1 << 10, 1 << 20, 4)
         .with_generator(get_vec)
         .with_bench(pew_bench!(bm_vector_iterate))
