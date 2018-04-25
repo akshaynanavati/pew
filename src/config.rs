@@ -37,7 +37,7 @@ fn create_config() -> Config {
                 .short("r")
                 .long("min_runs")
                 .value_name("MIN_RUNS")
-                .help("Run benchmarks for at least this many runs")
+                .help("Run benchmarks for at least this many runs. This will be always be at least 2.")
                 .takes_value(true)
                 .default_value(DEFAULT_MIN_RUNS),
         )

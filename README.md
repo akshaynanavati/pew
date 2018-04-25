@@ -118,7 +118,7 @@ Size,bm_vector_range,bm_vector_gen
 1048576,108144239,107596626
 ```
 
-[TODO](https://github.com/akshaynanavati/pew/issues/1): Add more output types
+[TODO](https://github.com/akshaynanavati/pew/issues/2): Add more output types
 (e.g. pretty printed, JSON, etc).
 
 ## Cli
