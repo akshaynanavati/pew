@@ -9,27 +9,21 @@ able to do the following (which you cannot do in the rust benchmarking library):
 2) Run multiple benchmarks by specifying a range of arguments
 3) Creating some initial state that gets passed to all runs of the benchmark
 
-Currently, it runs the benchmark enough times such that it runs for at least 1
-second and then averages all those runs.
+The benchmark will run for at least 1 second (or the user specified
+`--min_duration`) and at least 8 runs (or the user specified `--min_runs`).
+The average of these runs is output as the `Time (ns)` column.
 
-More comprehensive docs can be found [here](https://docs.rs/pew/0.1.0/pew/).
+More comprehensive docs can be found [here](https://docs.rs/pew/).
 
-[TODO](https://github.com/akshaynanavati/pew/issues/1): How do we make this
-more statistically significant? Run the benchmark till the variance settles?
+[TODO](https://github.com/akshaynanavati/pew/issues/4): Output other state, not
+just the mean.
 
 ## Installation
 
 This is available on [crates.io](https://crates.io/crates/pew). You can link it
 as a library, or `cargo install` to also get the transpose script (see [output](#output)).
 
-First, add this to your `Cargo.toml`:
-
-```
-[dependencies]
-pew = "0.1"
-```
-
-Next, add this to your crate root:
+Add pew as a dependency in your `Cargo.toml`. Then, add this to your crate root:
 
 ```
 #[macro_use]
@@ -41,7 +35,7 @@ I usually create benchmarks in the `bin/` directory and run them with
 
 ## Usage
 
-View the docs [here](https://docs.rs/pew/0.1.0/pew/).
+View the docs [here](https://docs.rs/pew/).
 
 ## Example
 
@@ -132,7 +126,6 @@ Size,bm_vector_range,bm_vector_gen
 The Cli offers convenience flags and options while running benchmarks:
 
 ```
-pew-benchmark 0.2.0
 Akshay Nanavati <akshay.nanavati1@gmail.com>
 A benchmarking library for Rust based on google/benchmark
 
@@ -144,8 +137,9 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --filter <FILTER>          Only run benchmarks that contain this string
-    -r, --run_until <RUN_UNTIL>    Run benchmarks till this time (in ns) and then output average [default: 1000000000]
+    -f, --filter <FILTER>             Only run benchmarks that contain this string
+    -d, --min_duration <RUN_UNTIL>    Run benchmarks till this time (in s) and then output average [default: 1]
+    -r, --min_runs <MIN_RUNS>         Run benchmarks for at least this many runs [default: 8]
 ```
 
 These can be passed to the main binary that is running your benchmark.

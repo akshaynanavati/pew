@@ -79,9 +79,6 @@ fn compose<T: 'static, U: 'static>(f: Box<Fn(u64) -> T>, g: fn(T) -> U) -> Box<F
 /// gen_bench/f/1048576,109010591
 /// ```
 ///
-/// When running the benchmark, you can pass the `--filter` flag. This will only run benchmarks
-/// who's name contains the substring passed in to `--filter`.
-///
 /// See `examples/` for more examples.
 pub struct Benchmark<T: 'static + Clone> {
     name: &'static str,

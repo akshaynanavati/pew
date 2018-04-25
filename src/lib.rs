@@ -15,6 +15,42 @@
  */
 
 #![feature(asm)]
+#![doc(issue_tracker_base_url = "https://github.com/akshaynanavati/pew/issues/")]
+
+//! # Pew is a benchmarking library
+//!
+//! Pew is inspired by [Google's C++ Benchmarking library](https://github.com/google/benchmark). It
+//! is currently in very alpha stages (I'd consider it an MVP). It was built to be able to do the
+//! following (which you cannot do in the rust benchmarking library):
+//!
+//! 1) Pause and unpause the benchmark timer
+//! 2) Run multiple benchmarks by specifying a range of arguments
+//! 3) Creating some initial state that gets passed to all runs of the benchmark
+//!
+//! The benchmark will run for at least 1 second (or the user specified
+//! `--min_duration`) and at least 8 runs (or the user specified `--min_runs`).
+//! The average of these runs is output as the `Time (ns)` column.
+//!
+//! The following flags are available when running the benchmark binary:
+//!
+//! ```txt
+//! Akshay Nanavati <akshay.nanavati1@gmail.com>
+//! A benchmarking library for Rust based on google/benchmark
+//!
+//! USAGE:
+//!     example1 [OPTIONS]
+//!
+//! FLAGS:
+//!     -h, --help       Prints help information
+//!     -V, --version    Prints version information
+//!
+//! OPTIONS:
+//!     -f, --filter <FILTER>             Only run benchmarks that contain this string
+//!     -d, --min_duration <RUN_UNTIL>    Run benchmarks till this time (in s) and then output average [default: 1]
+//!     -r, --min_runs <MIN_RUNS>         Run benchmarks for at least this many runs [default: 8]
+//!  ```
+//!
+//!  Use `-h` to get the most up to date flags.
 
 extern crate clap;
 #[macro_use]
