@@ -1,48 +1,12 @@
-use clap::{App, Arg, ArgMatches};
+use config::Config;
 use state::State;
 use std::sync::{Once, ONCE_INIT};
 
-const DEFAULT_DURATION_RUN_UNTIL: &str = "1000000000";
 static HEADER: Once = ONCE_INIT;
 
-lazy_static! {
-    static ref CLI_CONFIG: ArgMatches<'static> = App::new("pew-benchmark")
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
-        .about(env!("CARGO_PKG_DESCRIPTION"))
-        .arg(
-            Arg::with_name("filter")
-                .short("f")
-                .long("filter")
-                .value_name("FILTER")
-                .help("Only run benchmarks that contain this string")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("run_until")
-                .short("r")
-                .long("run_until")
-                .value_name("RUN_UNTIL")
-                .help("Run benchmarks till this time (in ns) and then output average")
-                .takes_value(true)
-                .default_value(DEFAULT_DURATION_RUN_UNTIL),
-        )
-        .get_matches();
-}
-
-fn get_duration_run_until() -> u64 {
-    CLI_CONFIG
-        .value_of("run_until")
-        .unwrap()
-        .parse::<u64>()
-        .unwrap()
-}
-
 fn should_run_bm(bm_name: &String) -> bool {
-    match CLI_CONFIG.value_of("filter") {
-        None => true,
-        Some(s) => bm_name.contains(s),
-    }
+    let filter = &Config::get().filter;
+    bm_name.contains(filter)
 }
 
 fn range_generator<T>(i: T) -> T {
@@ -220,7 +184,9 @@ impl<T: Clone> Benchmark<T> {
                 if should_run_bm(&bm_name) {
                     let mut runs = 0;
                     let mut total_duration = 0;
-                    while total_duration < get_duration_run_until() {
+                    while runs < Config::get().min_runs as u64
+                        || total_duration < Config::get().min_duration
+                    {
                         let mut state = State::new(input.clone());
                         f(&mut state);
                         total_duration += state.finish();

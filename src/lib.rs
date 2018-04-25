@@ -24,6 +24,7 @@ extern crate libc;
 mod clock;
 mod benchmark;
 mod state;
+mod config;
 
 pub use benchmark::Benchmark;
 pub use state::State;
