@@ -1,4 +1,5 @@
 use clap::{App, Arg};
+use std::cmp;
 
 const DEFAULT_MIN_DURATION: &str = "1";
 const DEFAULT_MIN_RUNS: &str = "8";
@@ -52,11 +53,14 @@ fn create_config() -> Config {
         .unwrap()
         .parse::<u64>()
         .unwrap() * 1_000_000_000;
-    let min_runs = app_config
-        .value_of("min_runs")
-        .unwrap()
-        .parse::<u8>()
-        .unwrap();
+    let min_runs = cmp::max(
+        app_config
+            .value_of("min_runs")
+            .unwrap()
+            .parse::<u8>()
+            .unwrap(),
+        2,
+    );
     Config {
         filter: filter.to_string(),
         min_duration,
