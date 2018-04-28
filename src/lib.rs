@@ -45,9 +45,9 @@
 //!     -V, --version    Prints version information
 //!
 //! OPTIONS:
-//!     -f, --filter <FILTER>             Only run benchmarks that contain this string
-//!     -d, --min_duration <RUN_UNTIL>    Run benchmarks till this time (in s) and then output average [default: 1]
-//!     -r, --min_runs <MIN_RUNS>         Run benchmarks for at least this many runs [default: 8]
+//!    -f, --filter <FILTER>             Only run benchmarks with a name that matches this regex
+//!    -d, --min_duration <RUN_UNTIL>    Run benchmarks till this time (in s) and then output average [default: 1]
+//!     -r, --min_runs <MIN_RUNS>        Run benchmarks for at least this many runs [default: 8]
 //!  ```
 //!
 //!  Use `-h` to get the most up to date flags.

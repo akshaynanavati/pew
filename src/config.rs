@@ -22,7 +22,7 @@ fn create_config() -> Config {
                 .short("f")
                 .long("filter")
                 .value_name("FILTER")
-                .help("Only run benchmarks that contain this string")
+                .help("Only run benchmarks with a name that matches this regex")
                 .takes_value(true),
         )
         .arg(
