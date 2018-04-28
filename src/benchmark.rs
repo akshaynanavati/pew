@@ -6,7 +6,8 @@ static HEADER: Once = ONCE_INIT;
 
 fn should_run_bm(bm_name: &String) -> bool {
     let filter = &Config::get().filter;
-    bm_name.contains(filter)
+
+    filter.is_match(bm_name)
 }
 
 fn range_generator<T>(i: T) -> T {

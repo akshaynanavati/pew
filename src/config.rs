@@ -1,11 +1,13 @@
 use clap::{App, Arg};
+use regex::Regex;
 use std::cmp;
+use std::error::Error;
 
 const DEFAULT_MIN_DURATION: &str = "1";
 const DEFAULT_MIN_RUNS: &str = "8";
 
 pub struct Config {
-    pub filter: String,
+    pub filter: Regex,
     pub min_duration: u64,
     pub min_runs: u8,
 }
@@ -44,8 +46,14 @@ fn create_config() -> Config {
         .get_matches();
 
     let filter = match app_config.value_of("filter") {
-        None => "",
-        Some(s) => s,
+        None => Regex::new("").expect("Empty string should be a valid regex"),
+        Some(s) => match Regex::new(s) {
+            Ok(f) => f,
+            Err(e) => {
+                eprintln!("Illegal regex {}: {}", s, e.description());
+                Regex::new("").expect("Empty string should be a valid regex")
+            }
+        },
     };
 
     let min_duration = app_config
@@ -62,7 +70,7 @@ fn create_config() -> Config {
         2,
     );
     Config {
-        filter: filter.to_string(),
+        filter,
         min_duration,
         min_runs,
     }

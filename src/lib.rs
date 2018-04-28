@@ -56,6 +56,7 @@ extern crate clap;
 #[macro_use]
 extern crate lazy_static;
 extern crate libc;
+extern crate regex;
 
 mod clock;
 mod benchmark;
