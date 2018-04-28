@@ -14,30 +14,55 @@
  * limitations under the License.
  */
 
-/// Transposes the output of a benchmark.
-///
-/// This assumes that you are running multiple benchmarks (`RANGE or
-/// `GENRANGE`) with the same range. It will then transform the default
-/// output:
-///
-/// ```
-/// Name,Time (ns)
-/// bm_vector_range/1024,102541
-/// bm_vector_range/4096,423289
-/// bm_vector_gen/1024,102316
-/// bm_vector_gen/4096,416523
-/// ```
-///
-/// into:
-///
-/// ```
-/// Size,bm_vector_range,bm_vector_gen
-/// 1024,105974,106845
-/// 4096,418835,409143
-/// ```
+//! Transposes the output of a benchmark.
+//!
+//! This assumes that you are running multiple benchmarks (`RANGE or
+//! `GENRANGE`) with the same range. It will then transform the default
+//! output:
+//!
+//! ```
+//! Name,Time (ns)
+//! bm_vector_range/1024,102541
+//! bm_vector_range/4096,423289
+//! bm_vector_gen/1024,102316
+//! bm_vector_gen/4096,416523
+//! ```
+//!
+//! into:
+//!
+//! ```
+//! Size,bm_vector_range,bm_vector_gen
+//! 1024,105974,106845
+//! 4096,418835,409143
+//! ```
+
+#[macro_use]
+extern crate lazy_static;
+extern crate clap;
+
+use clap::{App, Arg, ArgMatches};
 use std::collections::BTreeMap;
-use std::io::{self, BufRead};
+use std::error::Error;
+use std::fs::File;
+use std::io::{self, BufRead, Write};
+use std::path::Path;
 use std::vec::Vec;
+
+lazy_static! {
+    static ref APP_FLAGS: ArgMatches<'static> = App::new("pew-benchmark")
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about(env!("CARGO_PKG_DESCRIPTION"))
+        .arg(
+            Arg::with_name("file")
+                .short("f")
+                .long("file")
+                .value_name("FILE")
+                .help("File to write out to. If ommitted, will write out to stdout")
+                .takes_value(true),
+        )
+        .get_matches();
+}
 
 fn parse_line(line: &str) -> Option<(String, &str, &str)> {
     let split: Vec<&str> = line.split(',').collect();
@@ -63,6 +88,11 @@ fn main() {
     let mut names = Vec::new();
     for line in stdin.lock().lines() {
         let line = line.unwrap();
+
+        if let Some(_) = APP_FLAGS.value_of("file") {
+            println!("{}", line);
+        }
+
         if let Some((name, size, time)) = parse_line(&line) {
             if !names.contains(&name) {
                 names.push(name);
@@ -78,8 +108,25 @@ fn main() {
         }
     }
 
-    // Header
-    println!("{},{}", "Size", names.join(","));
+    let header = format!("{},{}\n", "Size", names.join(","));
+    if let Some(fname) = APP_FLAGS.value_of("file") {
+        match File::create(&Path::new(fname)) {
+            Ok(mut f) => {
+                f.write(header.as_bytes()).expect("File write failed");
+                for (size, times) in results {
+                    f.write(format!("{},{}\n", size, times.join(",")).as_bytes())
+                        .expect("File write failed");
+                }
+                return;
+            }
+            Err(why) => {
+                eprintln!("ERROR: Could not open {}: {}", fname, why.description());
+                eprintln!("Displaying results below:");
+            }
+        }
+    }
+
+    print!("{}", header);
     for (size, times) in results {
         println!("{},{}", size, times.join(","));
     }
