@@ -1,7 +1,7 @@
 [package]
 name = "pew"
 description = "A benchmarking library for Rust based on google/benchmark"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Akshay Nanavati <akshay.nanavati1@gmail.com>"]
 repository = "https://github.com/akshaynanavati/pew"
 readme = "README.md"
