@@ -65,6 +65,7 @@ mod config;
 
 pub use benchmark::Benchmark;
 pub use state::State;
+pub use clock::Clock;
 
 /// This method forces the compiler to not optimize the return statement of a benchmark.
 ///
